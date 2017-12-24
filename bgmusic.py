@@ -12,7 +12,7 @@ CONFIG_PATH = os.path.join(CONFIG_ROOT_PATH, 'config.json')
 PLAYLIST_PATH = os.path.join(CONFIG_ROOT_PATH, 'playlist.m3u')
 DEFAULT_CONFIG = {
     'player': '/usr/bin/mpv',
-    'args': '--volume=40 -vo=null  --save-position-on-quit -shuffle --playlist={playlist}'
+    'args': '--volume=40 -vo=null --save-position-on-quit -shuffle --playlist={playlist}'
 }
 
 def _get_musics():
