@@ -50,6 +50,11 @@ def cli(ctx):
 def play(ctx):
     '''Play musics.'''
 
+    musics = _get_musics()
+    if not musics:
+        click.echo('Empty music list.')
+        return
+
     config = ctx.obj
     player = config['player']
     args = shlex.split(config['args'].format(playlist=PLAYLIST_PATH))
@@ -60,6 +65,9 @@ def play(ctx):
 def list_musics(ctx):
     '''List musics.'''
     musics = _get_musics()
+    if not musics:
+        click.echo('Empty music list.')
+        return
     for i, music in enumerate(musics):
         click.echo('[{}] {}'.format(i+1, music))
 
@@ -78,7 +86,7 @@ def add(ctx, music):
 
 @cli.command()
 @click.option('--index', type=int, help='Index to remove')
-@click.option('--all', prompt=True, is_flag=True, help='Remove ALL musics')
+@click.option('--all', is_flag=True, help='Remove ALL musics')
 @click.pass_context
 def remove(ctx, index, all):
     '''Remove music.'''
@@ -89,6 +97,10 @@ def remove(ctx, index, all):
 
     size = 0
     musics = list(_get_musics())
+
+    if not musics:
+        click.echo('Empty music list.')
+        return
 
     if not index:
         ctx.invoke(list_musics)
