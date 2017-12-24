@@ -42,6 +42,14 @@ def play(ctx):
     subprocess.run([player, *args])
 
 @cli.command()
+@click.pass_context
+def list(ctx):
+    with open(PLAYLIST_PATH, 'r') as f:
+        musics = set([l.strip() for l in f.readlines()])
+        for i, music in enumerate(musics):
+            click.echo('[{}] {}'.format(i+1, music))
+
+@cli.command()
 @click.argument('music', type=click.Path())
 @click.pass_context
 def add(ctx, music):
