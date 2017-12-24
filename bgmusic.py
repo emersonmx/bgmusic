@@ -71,10 +71,15 @@ def list_musics():
         click.echo('[{}] {}'.format(i+1, music))
 
 @cli.command()
-@click.argument('music', type=click.Path(exists=True, resolve_path=True))
+@click.argument('music', nargs=-1)
 def add(music):
     '''Add music.'''
+
+    music = ' '.join(music).strip()
     music_path = os.path.realpath(music)
+    if not os.path.exists(music_path):
+        raise click.ClickException(
+            'Invalid value for "music": Path "{}" does not exist.'.format(music))
 
     musics = _get_musics()
     musics.add(music_path)
