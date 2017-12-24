@@ -15,6 +15,11 @@ DEFAULT_CONFIG = {
     'args': '--volume=40 -vo=null  --save-position-on-quit -shuffle --playlist={playlist}'
 }
 
+def _get_musics():
+    with open(PLAYLIST_PATH, 'r') as f:
+        return set([l.strip() for l in f.readlines()])
+    return set()
+
 @click.group()
 @click.pass_context
 def cli(ctx):
@@ -44,10 +49,9 @@ def play(ctx):
 @cli.command()
 @click.pass_context
 def list(ctx):
-    with open(PLAYLIST_PATH, 'r') as f:
-        musics = set([l.strip() for l in f.readlines()])
-        for i, music in enumerate(musics):
-            click.echo('[{}] {}'.format(i+1, music))
+    musics = _get_musics()
+    for i, music in enumerate(musics):
+        click.echo('[{}] {}'.format(i+1, music))
 
 @cli.command()
 @click.argument('music', type=click.Path())
@@ -55,9 +59,7 @@ def list(ctx):
 def add(ctx, music):
     music_path = os.path.realpath(music)
 
-    with open(PLAYLIST_PATH, 'r') as f:
-        musics = set([l.strip() for l in f.readlines()])
-
+    musics = _get_musics()
     musics.add(music_path)
     with open(PLAYLIST_PATH, 'w') as f:
         for path in musics:
