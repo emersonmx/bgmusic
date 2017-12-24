@@ -61,8 +61,7 @@ def play(ctx):
     subprocess.run([player, *args])
 
 @cli.command(name='list')
-@click.pass_context
-def list_musics(ctx):
+def list_musics():
     '''List musics.'''
     musics = _get_musics()
     if not musics:
@@ -72,9 +71,8 @@ def list_musics(ctx):
         click.echo('[{}] {}'.format(i+1, music))
 
 @cli.command()
-@click.argument('music', type=click.Path())
-@click.pass_context
-def add(ctx, music):
+@click.argument('music', type=click.Path(exists=True, resolve_path=True))
+def add(music):
     '''Add music.'''
     music_path = os.path.realpath(music)
 
