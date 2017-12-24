@@ -20,9 +20,16 @@ def _get_musics():
         return set([l.strip() for l in f.readlines()])
     return set()
 
+def _save_musics(musics):
+    with open(PLAYLIST_PATH, 'w') as f:
+        for music in musics:
+            f.write(music.strip() + '\n')
+
 @click.group()
 @click.pass_context
 def cli(ctx):
+    '''Script to play background musics.'''
+
     if not os.path.exists(CONFIG_ROOT_PATH):
         os.mkdir(CONFIG_ROOT_PATH)
 
@@ -41,14 +48,17 @@ def cli(ctx):
 @cli.command()
 @click.pass_context
 def play(ctx):
+    '''Play musics.'''
+
     config = ctx.obj
     player = config['player']
     args = shlex.split(config['args'].format(playlist=PLAYLIST_PATH))
     subprocess.run([player, *args])
 
-@cli.command()
+@cli.command(name='list')
 @click.pass_context
-def list(ctx):
+def list_musics(ctx):
+    '''List musics.'''
     musics = _get_musics()
     for i, music in enumerate(musics):
         click.echo('[{}] {}'.format(i+1, music))
@@ -57,15 +67,38 @@ def list(ctx):
 @click.argument('music', type=click.Path())
 @click.pass_context
 def add(ctx, music):
+    '''Add music.'''
     music_path = os.path.realpath(music)
 
     musics = _get_musics()
     musics.add(music_path)
-    with open(PLAYLIST_PATH, 'w') as f:
-        for path in musics:
-            f.write(path.strip() + '\n')
+    _save_musics(musics)
 
     click.echo('"{}" added to playlist'.format(music))
+
+@cli.command()
+@click.option('--index', type=int, help='Index to remove')
+@click.option('--all', prompt=True, is_flag=True, help='Remove ALL musics')
+@click.pass_context
+def remove(ctx, index, all):
+    '''Remove music.'''
+    if all:
+        if click.confirm('Remove ALL musics?'):
+            _save_musics([])
+        return
+
+    size = 0
+    musics = list(_get_musics())
+
+    if not index:
+        ctx.invoke(list_musics)
+        index = click.prompt('Music to remove', type=int)
+
+    if 0 < index <= len(musics):
+        del musics[index - 1]
+        _save_musics(musics)
+    else:
+        raise click.UsageError('Invalid music')
 
 if __name__ == '__main__':
     cli()
